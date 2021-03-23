@@ -11,7 +11,7 @@
     </div>
 
     <div id="body">
-      <div class="row justify-content-between mb-4">
+      <div class="row justify-content-between align-items-center mb-4">
 
         <div class="col-2 dropdown">
           <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterButton" data-toggle="dropdown"
@@ -33,53 +33,84 @@
 
       </div>
 
-      <transition-group name="list" class="lg" tag="div">
-        <div v-for="(index, ix) in activeIndices" class="list-item row" :key="index">
-          <div class="col-12 row">
-            <div class="col-5">
-              <h5>{{links[index].name}}</h5>
-              <h6>time to time</h6>
+      <transition-group name="list" tag="div" class="w-100">
+        <div v-for="(item, ix) in activeIndices" class="list-item row" :key="links[item].idNum">
+          <div class="col-12 row align-items-center">
+            <div class="col-4">
+              <h5>{{links[item].name}}</h5>
+              <h6>
+                <span v-if="links[item].time !== ''">{{formatTime(links[item].time)}}</span>
+                <span v-else>no assigned time</span>
+                <span v-if="links[item].repeating">, repeating
+                  <span v-if="links[item].daysRepeating[0]">Su</span>
+                  <span v-if="links[item].daysRepeating[1]">Mo</span>
+                  <span v-if="links[item].daysRepeating[2]">Tu</span>
+                  <span v-if="links[item].daysRepeating[3]">We</span>
+                  <span v-if="links[item].daysRepeating[4]">Th</span>
+                  <span v-if="links[item].daysRepeating[5]">Fr</span>
+                  <span v-if="links[item].daysRepeating[6]">Sa</span>
+                </span>
+                <span v-else>
+                  <span v-if="links[item].date !== ''">, {{formatDate(links[item].date)}}</span>
+                  <span v-else>, no assigned date</span>
+                </span>
+              </h6>
             </div>
-            <div class="col-5">
-              <h5><a v-bind:href="links[index].link">{{links[index].link}}</a></h5>
-              <h6 v-if="links[index].password == null">No password</h6>
-              <h6 v-else>Password <b>{{links[index].password}}</b></h6>
+            <div class="col-6">
+              <h5><a v-bind:href="links[item].link">
+                <span class="full-link">{{links[item].link}}</span>
+                <span class="short-link">Join meeting</span>
+              </a></h5>
+              <h6 v-if="links[item].password === ''">No password</h6>
+              <h6 v-else>Password <b>{{links[item].password}}</b></h6>
             </div>
-            <div class="col-2">
-              <button class="btn" :class="links[index].starred ? 'bi-star-fill' : 'bi-star'"
-                      style="color: gold;"/>
+            <div class="col-1">
+              <button class="btn" :class="links[item].starred ? 'bi-star-fill' : 'bi-star'" style="color: gold;"
+              @click="links[item].starred = !links[item].starred;"/>
+            </div>
+            <div class="col-1">
+              <button class="btn bi-x" style="font-size: 1.5rem" @click="deleteItem(item)"/>
             </div>
           </div>
-          <hr class="d-block col-12" v-if="ix !== activeIndices.length - 1"/>
+          <hr class="col-12" v-if="ix !== activeIndices.length - 1"/>
+        </div>
+        <div class="mt-5" :key="-1">
+          <small>We store all your event data in your browser, so only your computer has access to your event
+            details.</small>
+          <br/>
+          <small>&copy; 2021 Daniel Liu</small>
         </div>
       </transition-group>
 
     </div>
 
-    <div class="modal" tabindex="-1" id="addLinkForm">
+    <div class="modal fade" tabindex="-1" id="addLinkForm">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Add a new link</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="clearForm">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <form>
+            <form v-on:submit.prevent="saveForm">
               <div class="form-group">
                 <label for="nameInput">Event Title</label>
-                <input type="text" class="form-control" id="nameInput" aria-describedby="nameHelp" required/>
+                <input type="text" class="form-control" id="nameInput" aria-describedby="nameHelp"
+                       v-model="formData.name" required autocomplete="off"/>
                 <small id="nameHelp" class="form-text text-muted">Enter the name of your event here. All event
                   data is stored on your browser's storage.</small>
 
                 <label for="linkInput">Meeting Link</label>
-                <input type="url" class="form-control" id="linkInput" aria-describedby="linkHelp" required/>
+                <input type="url" class="form-control" id="linkInput" aria-describedby="linkHelp"
+                       v-model="formData.link" required autocomplete="off"/>
                 <small id="linkHelp" class="form-text text-muted">Enter the link to your event here. All event
                   data is stored on your browser's storage.</small>
 
                 <label for="pwdInput">Meeting Password</label>
-                <input type="text" class="form-control form-control-sm" id="pwdInput" aria-describedby="pwdHelp"/>
+                <input type="text" class="form-control form-control-sm" id="pwdInput" aria-describedby="pwdHelp"
+                       v-model="formData.password" autocomplete="off"/>
                 <small id="pwdHelp" class="form-text text-muted">Enter the password for the meeting link, if one
                 exists.</small>
 
@@ -87,21 +118,28 @@
               <hr/>
               <div class="form-group">
 
-                <label for="datetimeInput">Meeting Date/Time</label>
-                <input type="datetime-local" class="form-control" id="datetimeInput" aria-describedby="datetimeHelp"/>
-                <small id="datetimeHelp" class="form-text text-muted">Enter the date and time of your event here.</small>
+                <label for="dateInput">Meeting Date/Time</label>
+                <div class="form-row">
+                  <input type="date" class="form-control col-6" id="dateInput" autocomplete="false"
+                         aria-describedby="datetimeHelp" v-model="formData.date"/>
+                  <input type="time" class="form-control col-6" id="timeInput" autocomplete="false"
+                         aria-describedby="datetimeHelp" v-model="formData.time"/>
+                </div>
+                <small id="datetimeHelp" class="form-text text-muted">Enter the date and time of your event here.
+                If the event is repeating, enter the starting date and the time of the event.</small>
 
                 <div class="form-check mb-1">
-                  <input class="form-check-input" type="checkbox" value="" id="repeatCheck" v-model="formRepeating">
+                  <input class="form-check-input" type="checkbox" value="" id="repeatCheck" v-model="formData.repeating">
                   <label class="form-check-label" for="repeatCheck">
                     Repeating
                   </label>
                 </div>
 
-                <div v-if="formRepeating">
+                <div v-if="formData.repeating">
                   <div v-for="(day, idx) in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
                   'Saturday']" :key="idx" class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="">
+                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value=""
+                           v-model="formData.daysRepeating[idx]">
                     <label class="form-check-label" for="inlineCheckbox1">{{day}}</label>
                   </div>
                 </div>
@@ -118,10 +156,34 @@
       </div>
     </div>
 
+    <div class="modal fade" tabindex="-1" id="delete">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Delete event?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this event? You can't undo this.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No, keep it.</button>
+            <button type="button" class="btn btn-danger" @click="confirmDelete">Yes, BEGONE!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
+
+  global.jQuery = require('jquery');
+  var $ = global.jQuery;
+  window.$ = $;
 
   export default {
     name: 'App',
@@ -129,44 +191,27 @@
     data: () => {return {
 
       // form data
-        formRepeating: false,
+        formData: {
+          idNum: 0,
+          name: "",
+          link: "",
+          password: "",
+          date: "",
+          time: "",
+          repeating: false,
+          daysRepeating: [],
+          starred: false
+        },
+
+      // for making new object
+        nextId: 0,
+
+      // for deleting
+        indexToRemove: -1,
 
       // global data
         filterType: 0,
-        links: [
-          {
-            name: "Staff Meeting",
-            link: "https://meet.google.com/abc-defg-hij",
-            starred: true
-          },
-          {
-            name: "EECS 482 Lecture",
-            link: "https://umich.zoom.us/j/1234567890",
-            starred: false
-          },
-          {
-            name: "EECS 481 Lecture",
-            link: "https://umich.zoom.us/j/4824824824",
-            starred: false
-          },
-          {
-            name: "EECS 370 Discussion",
-            link: "https://umich.zoom.us/j/3703703703",
-            password: "123456",
-            starred: false
-          },
-          {
-            name: "370 Staff Meeting",
-            link: "https://umich.zoom.us/j/0987654321",
-            password: "567890",
-            starred: false
-          },
-          {
-            name: "EECS 370 Group OH",
-            link: "https://umich.zoom.us/j/3703703704",
-            starred: false
-          }
-        ]
+        links: []
       }},
     computed: {
       activeIndices: function() {
@@ -177,9 +222,207 @@
           case 0: // all
             for (let i = 0; i < this.links.length; ++i) {indices.push(i);}
             break;
-          case 1: // upcoming
+          case 1: // upcoming (next 24 h)
+          {
+            let datetimes = [];
+            let now = new Date();
+            let nowPlus24 = new Date();
+            nowPlus24.setDate(nowPlus24.getDate() + 1);
             for (let i = 0; i < this.links.length; ++i) {
-             if (i % 2 === 0) {indices.push(i);}
+
+              if (this.links[i].repeating) {
+                if (this.links[i].date === '') {
+                  // no start date
+                  if (this.links[i].daysRepeating[now.getDay()]) {
+                    if (this.links[i].time === '') {
+                      indices.push(i);
+                      datetimes.push(0);
+                    }
+                    else {
+                      let hour = parseInt(this.links[i].time.substr(0, 2));
+                      let min = parseInt(this.links[i].time.substr(3, 2));
+                      let currh = now.getHours();
+                      let currm = now.getMinutes();
+                      if (hour > currh) {
+                        indices.push(i);
+                        datetimes.push(0);
+                      } else if (hour === currh && min >= currm) {
+                        indices.push(i);
+                        datetimes.push(0);
+                      } else {
+                        datetimes.push(0);
+                      }
+                    }
+                  } else if (this.links[i].daysRepeating[nowPlus24.getDay()]) {
+                    if (this.links[i].time === '') {
+                      indices.push(i);
+                      datetimes.push(0);
+                    }
+                    else {
+                      let hour = this.links[i].time.substr(0, 2);
+                      let min = this.links[i].time.substr(3, 2);
+                      let currh = now.getHours();
+                      let currm = now.getMinutes();
+                      if (hour < currh) {
+                        indices.push(i);
+                        datetimes.push(0);
+                      } else if (hour === currh && min <= currm) {
+                        indices.push(i);
+                        datetimes.push(0);
+                      } else {
+                        datetimes.push(0);
+                      }
+                    }
+                  } else {
+                    datetimes.push(0);
+                  }
+                } else {
+                  // start date
+                  if (this.links[i].time === '') {
+                    let parsed = this.splitDate(this.links[i].date);
+                    let itemDate = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+                    if (itemDate <= nowPlus24) {
+                      if (this.links[i].daysRepeating[now.getDay()] ||
+                              this.links[i].daysRepeating[nowPlus24.getDay()]) {
+                        indices.push(i);
+                        datetimes.push(0);
+                      } else {
+                        datetimes.push(0);
+                      }
+                    } else {
+                      datetimes.push(0);
+                    }
+                  }
+                  else {
+                    let parsed = this.splitDate(this.links[i].date);
+                    let itemDate = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+                    let hour = parseInt(this.links[i].time.substr(0, 2));
+                    let min = parseInt(this.links[i].time.substr(3, 2));
+                    let currh = now.getHours();
+                    let currm = now.getMinutes();
+                    if (itemDate <= nowPlus24) {
+                      if (this.links[i].daysRepeating[now.getDay()]) {
+                        if (hour > currh) {
+                          indices.push(i);
+                          datetimes.push(0);
+                        }
+                        else if (hour === currh && min > currm) {
+                          indices.push(i);
+                          datetimes.push(0);
+                        }
+                        else {
+                          datetimes.push(0);
+                        }
+                      }
+                      else if (this.links[i].daysRepeating[nowPlus24.getDay()]) {
+                        if (hour < currh) {
+                          indices.push(i);
+                          datetimes.push(0);
+                        }
+                        else if (hour === currh && min < currm) {
+                          indices.push(i);
+                          datetimes.push(0);
+                        }
+                        else {
+                          datetimes.push(0);
+                        }
+                      }
+                      else {
+                        datetimes.push(0);
+                      }
+                    }
+                    else {
+                      datetimes.push(0);
+                    }
+                  }
+                }
+                continue;
+              }
+
+              if (this.links[i].date !== '') {
+                if (this.links[i].time === '') {
+                  let parsed = this.splitDate(this.links[i].date);
+                  let itemDate = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+                  if (itemDate >= now.getTime()) {
+                    indices.push(i);
+                    datetimes.push(itemDate);
+                  } else {
+                    datetimes.push(0);
+                  }
+                } else {
+                  let parsed = this.splitDate(this.links[i].date);
+                  let hour = this.links[i].time.substr(0, 2);
+                  let min = this.links[i].time.substr(3, 2);
+                  let d = new Date(parsed[0], parsed[1] - 1, parsed[2], hour, min);
+                  if (d >= now.getTime() && d <= nowPlus24.getTime()) {
+                    indices.push(i);
+                    datetimes.push(d);
+                  } else {
+                    datetimes.push(0);
+                  }
+                }
+              } else {
+                datetimes.push(0);
+              }
+            }
+            console.log(datetimes);
+            indices.sort((x, y) => datetimes[x] - datetimes[y]);
+            console.log(indices);
+          }
+            break;
+          case 2: // today
+          {
+            let datetimes = [];
+            let now = new Date();
+            let nowstring = now.getFullYear() + "-" + (now.getMonth() < 9 ? '0' : '') + (now.getMonth() + 1) + "-" +
+                    (now.getDate() < 10 ? '0' : '') + now.getDate();
+            console.log(nowstring);
+            for (let i = 0; i < this.links.length; ++i) {
+
+              if (this.links[i].repeating) {
+                if (this.links[i].date === '') {
+                  if (this.links[i].daysRepeating[now.getDay()]) {
+                    indices.push(i);
+                    datetimes.push(0);
+                  } else {
+                    datetimes.push(0);
+                  }
+                } else {
+                  let parsed = this.splitDate(this.links[i].date);
+                  let itemDate = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+                  if (itemDate <= now) {
+                    indices.push(i);
+                    datetimes.push(0);
+                  } else {
+                    datetimes.push(0);
+                  }
+                }
+                continue;
+              }
+
+              console.log(this.links[i].date);
+              if (this.links[i].date === nowstring) {
+                if (this.links[i].time === '') {
+                  let itemDate = Date.parse(this.links[i].date);
+                  indices.push(i);
+                  datetimes.push(itemDate);
+                } else {
+                  let d = Date.parse(this.links[i].date + "T" + this.links[i].time);
+                  indices.push(i);
+                  datetimes.push(d);
+                }
+              } else {
+                datetimes.push(0);
+              }
+            }
+            console.log(datetimes);
+            indices.sort((x, y) => datetimes[x] - datetimes[y]);
+            console.log(indices);
+          }
+            break;
+          case 3: // starred
+            for (let i = 0; i < this.links.length; ++i) {
+              if (this.links[i].starred) {indices.push(i);}
             }
             break;
           default:
@@ -189,10 +432,102 @@
 
         return indices;
       }
+
+    },
+    methods: {
+
+      saveData: function() {
+        sessionStorage.setItem("links", JSON.stringify(this.links));
+        sessionStorage.setItem("nextId", this.nextId.toString());
+      },
+
+      saveForm: function() {
+        // i mean you probably shouldn't be using http for a meeting but whatever
+        if (this.formData.link.substr(0, 7) !== "http://" && this.formData.link.substr(0, 8) !== "https://") {
+          this.formData.link = "https://" + this.formData.link;
+        }
+
+        this.formData.idNum = this.nextId++;
+        this.nextId %= 1048576;
+
+        this.links.push(this.formData);
+        this.formData = {
+          idNum: 0,
+          name: "",
+          link: "",
+          password: "",
+          date: "",
+          time: "",
+          repeating: false,
+          daysRepeating: [],
+          starred: false
+        };
+
+        $('#addLinkForm').modal('hide');
+        this.saveData();
+      },
+
+      clearForm: function() {
+        this.formData = {
+          idNum: 0,
+          name: "",
+          link: "",
+          password: "",
+          date: "",
+          time: "",
+          repeating: false,
+          daysRepeating: [],
+          starred: false
+        };
+      },
+
+      deleteItem: function(index) {
+        this.indexToRemove = index;
+        $('#delete').modal('show');
+      },
+
+      confirmDelete: function() {
+        if (this.indexToRemove !== -1) {
+          $('#delete').modal('hide');
+          this.links.splice(this.indexToRemove, 1);
+          this.saveData();
+          this.indexToRemove = -1;
+        }
+      },
+
+      formatTime: function(t) {
+        let dateObj = new Date("2021-01-01T"+t);
+        console.log(dateObj);
+        return dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      },
+
+      formatDate: function(d) {
+        let parsed = this.splitDate(d);
+        let dateObj = new Date(parsed[0], parsed[1] - 1, parsed[2]);
+        return dateObj.toLocaleDateString();
+      },
+
+      splitDate: function(d) {
+        // YYYY-MM-DD
+        let year = parseInt(d.substr(0, 4));
+        let month = parseInt(d.substr(5, 2));
+        let day = parseInt(d.substr(8, 2));
+        return [year, month, day]
+      }
+
     },
 
     mounted() {
-
+      console.log('mounted!');
+      if (sessionStorage.getItem('links') != null) {
+        console.log(sessionStorage.getItem('links'));
+        this.links = JSON.parse(sessionStorage.getItem('links'));
+        this.nextId = parseInt(sessionStorage.getItem('nextId'));
+      } else {
+        this.links = [];
+        this.nextId = 0;
+      }
+      window.addEventListener('beforeunload', () => {this.saveData();});
     }
 
   }
@@ -205,23 +540,23 @@
     width: 100%;
     top: 0;
     left: 0;
+    background-color: white;
+    z-index: 64;
   }
 
   #body {
-    margin: 96px 15% 0;
+    margin-top: 128px;
   }
 
   /* Transition */
 
   .list-item {
     transition: all 1s;
-    display: inline-block;
     margin-bottom: 10px;
   }
 
   .list-enter, .list-leave-to {
     opacity: 0;
-    transform: translateX(30px);
   }
 
   .list-enter-active, .list-leave-active {
@@ -234,7 +569,52 @@
 
   .list-leave-active {
     position: absolute;
-    width: 70%;
+  }
+
+  /* show link on wide screen but join on small screen */
+
+  @media only screen and (min-width: 1100px) {
+    .full-link {
+      display: inherit;
+    }
+    .short-link {
+      display: none;
+    }
+
+    #body {
+      margin-left: 15%;
+      margin-right: 15%;
+    }
+
+    .list-item {
+      width: 70vw;
+    }
+
+    .list-leave-active {
+      width: 70% !important;
+    }
+  }
+
+  @media only screen and (max-width: 1099px) {
+    .full-link {
+      display: none;
+    }
+    .short-link {
+      display: inherit;
+    }
+
+    #body {
+      margin-left: 5%;
+      margin-right: 5%;
+    }
+
+    .list-item {
+      width: 90vw;
+    }
+
+    .list-leave-active {
+      width: 90% !important;
+    }
   }
 
 </style>
