@@ -28,7 +28,7 @@
 
         <div class="col-2">
           <button class="btn bi-plus-circle" id="addLink" data-toggle="modal" data-target="#addLinkForm"
-                  style="font-size: 1.3rem"/>
+                  style="font-size: 1.3rem" onclick="$('#welcomeToast').toast('hide')"/>
         </div>
 
       </div>
@@ -149,9 +149,6 @@
               <button type="submit" class="btn btn-primary">Add event</button>
             </form>
           </div>
-          <div class="modal-footer">
-
-          </div>
         </div>
       </div>
     </div>
@@ -176,7 +173,25 @@
       </div>
     </div>
 
+    <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;">
+      <div class="toast" style="position: fixed; top: 16px; right: 16px; z-index: 128" id="welcomeToast"
+           data-autohide="false">
+        <div class="toast-header">
+          <strong class="mr-auto">Getting Started</strong>
+          <small>Just now</small>
+          <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
+                  onclick="localStorage.setItem('toastDismissed', 'yes')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="toast-body">
+          Welcome to link tracker! To get started, use the <i class="bi-plus-circle"/> icon to add a new event!
+        </div>
+      </div>
+    </div>
+
   </div>
+
 </template>
 
 <script>
@@ -526,6 +541,7 @@
         this.links = [];
         this.nextId = 0;
       }
+      if (localStorage.getItem('toastDismissed') == null) $('#welcomeToast').toast('show');
       window.addEventListener('beforeunload', () => {this.saveData();});
     }
 
