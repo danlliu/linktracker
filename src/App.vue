@@ -19,10 +19,10 @@
             {{['All links', 'Upcoming', 'Today', 'Starred'][this.filterType]}}
           </button>
           <div class="dropdown-menu" aria-labelledby="filterButton">
-            <button class="dropdown-item" type="button" v-on:click="filterType = 0">All links</button>
-            <button class="dropdown-item" type="button" v-on:click="filterType = 1">Upcoming</button>
-            <button class="dropdown-item" type="button" v-on:click="filterType = 2">Today</button>
-            <button class="dropdown-item" type="button" v-on:click="filterType = 3">Starred</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(0)">All links</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(1)">Upcoming</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(2)">Today</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(3)">Starred</button>
           </div>
         </div>
 
@@ -174,19 +174,38 @@
     </div>
 
     <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;">
-      <div class="toast" style="position: fixed; top: 16px; right: 16px; z-index: 128" id="welcomeToast"
-           data-autohide="false">
-        <div class="toast-header">
-          <strong class="mr-auto">Getting Started</strong>
-          <small>Just now</small>
-          <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
-                  onclick="localStorage.setItem('toastDismissed', 'yes')">
-            <span aria-hidden="true">&times;</span>
-          </button>
+      <div style="position: fixed; top: 16px; right: 16px; z-index: 128">
+        <div class="toast fade hide" id="welcomeToast"
+             data-autohide="false">
+          <div class="toast-header">
+            <strong class="mr-auto">Getting Started</strong>
+            <small>Just now</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
+                    onclick="localStorage.setItem('toastDismissed', 'yes')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body">
+            Welcome to link tracker! To get started, use the <i class="bi-plus-circle"/> icon to add a new event!
+          </div>
         </div>
-        <div class="toast-body">
-          Welcome to link tracker! To get started, use the <i class="bi-plus-circle"/> icon to add a new event!
-        </div>
+        <div class="toast fade hide" id="filterToast"
+             data-autohide="false">
+          <div class="toast-header">
+            <strong class="mr-auto">Getting Started</strong>
+            <small>Just now</small>
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
+                    onclick="localStorage.setItem('filterDismissed', 'yes')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="toast-body">
+            <p>Now that you have an event added, you can click the button labeled "All links" to filter your events.</p>
+            <p><b>Upcoming</b> shows all links that are scheduled to take place within the next 24 hours.</p>
+            <p><b>Today</b> shows all links that are scheduled for today, whether before or after the current time.</p>
+            <p><b>Starred</b> shows all links that you've marked as starred.</p>
+          </div>
+      </div>
       </div>
     </div>
 
@@ -405,7 +424,7 @@
                 } else {
                   let parsed = this.splitDate(this.links[i].date);
                   let itemDate = new Date(parsed[0], parsed[1] - 1, parsed[2]);
-                  if (itemDate <= now) {
+                  if (itemDate <= now && this.links[i].daysRepeating[now.getDay()]) {
                     indices.push(i);
                     datetimes.push(0);
                   } else {
@@ -451,6 +470,12 @@
     },
     methods: {
 
+      setFilter: function(num) {
+        this.filterType = num;
+        $('#filterToast').toast('hide');
+        localStorage.setItem("filterDismissed", "yes");
+      },
+
       saveData: function() {
         localStorage.setItem("links", JSON.stringify(this.links));
         localStorage.setItem("nextId", this.nextId.toString());
@@ -479,6 +504,9 @@
         };
 
         $('#addLinkForm').modal('hide');
+
+        if (localStorage.getItem('filterDismissed') == null) $('#filterToast').toast('show');
+
         this.saveData();
       },
 
