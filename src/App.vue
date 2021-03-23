@@ -5,8 +5,8 @@
         <h1>link tracker</h1>
         <h6>by danlliu</h6>
       </div>
-      <div class="col">
-
+      <div class="col row justify-content-end align-content-end">
+        <a href="https://github.com/danlliu/linktracker" target="_blank" rel="noreferrer noopener">v1.0.2</a>
       </div>
     </div>
 

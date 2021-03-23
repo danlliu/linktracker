@@ -10,7 +10,8 @@ linktracker was developed with HTML, Javascript, Bootstrap, and Vue.js.
 
 ## Version History
 
-**March 23, 2021:** fixed a bug where "Today" would show all repeating events that started before the current day
+**v1.0.2 (March 23, 2021):** fixed a bug where "Today" would show all repeating events that started before the current
+ day
 , regardless of it they repeated on today's weekday.  
-**March 22, 2021:** added notifications on the upper right to improve UI discoverability  
-**March 22, 2021:** released the first version!
+**v1.0.1 (March 22, 2021):** added notifications on the upper right to improve UI discoverability  
+**v1.0.0 (March 22, 2021):** released the first version!
