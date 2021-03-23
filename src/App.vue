@@ -437,8 +437,8 @@
     methods: {
 
       saveData: function() {
-        sessionStorage.setItem("links", JSON.stringify(this.links));
-        sessionStorage.setItem("nextId", this.nextId.toString());
+        localStorage.setItem("links", JSON.stringify(this.links));
+        localStorage.setItem("nextId", this.nextId.toString());
       },
 
       saveForm: function() {
@@ -519,10 +519,9 @@
 
     mounted() {
       console.log('mounted!');
-      if (sessionStorage.getItem('links') != null) {
-        console.log(sessionStorage.getItem('links'));
-        this.links = JSON.parse(sessionStorage.getItem('links'));
-        this.nextId = parseInt(sessionStorage.getItem('nextId'));
+      if (localStorage.getItem('links') != null) {
+        this.links = JSON.parse(localStorage.getItem('links'));
+        this.nextId = parseInt(localStorage.getItem('nextId'));
       } else {
         this.links = [];
         this.nextId = 0;
