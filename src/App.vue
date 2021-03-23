@@ -1,12 +1,13 @@
 <template>
-  <div id="app" class="m-3">
-    <div id="header" class="row p-3">
+  <div id="app" class="m-3" v-bind:class="darkMode && 'bg-dark'">
+
+    <div id="header" class="row p-3" v-bind:class="darkMode && 'bg-dark'">
       <div class="col">
-        <h1>link tracker</h1>
-        <h6>by danlliu</h6>
+        <h1 v-bind:class="darkMode && 'text-light'">link tracker</h1>
+        <h6 v-bind:class="darkMode && 'text-light'">by danlliu</h6>
       </div>
       <div class="col row justify-content-end align-content-end">
-        <a href="https://github.com/danlliu/linktracker" target="_blank" rel="noreferrer noopener">v1.0.2</a>
+        <a href="https://github.com/danlliu/linktracker" target="_blank" rel="noreferrer noopener">v1.1.0</a>
       </div>
     </div>
 
@@ -14,21 +15,27 @@
       <div class="row justify-content-between align-items-center mb-4">
 
         <div class="col-2 dropdown">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="filterButton" data-toggle="dropdown"
+          <button class="btn dropdown-toggle" v-bind:class="darkMode ? 'btn-outline-light' : 'btn-outline-secondary'"
+                  type="button"
+                  id="filterButton"
+                  data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
             {{['All links', 'Upcoming', 'Today', 'Starred'][this.filterType]}}
           </button>
-          <div class="dropdown-menu" aria-labelledby="filterButton">
-            <button class="dropdown-item" type="button" v-on:click="setFilter(0)">All links</button>
-            <button class="dropdown-item" type="button" v-on:click="setFilter(1)">Upcoming</button>
-            <button class="dropdown-item" type="button" v-on:click="setFilter(2)">Today</button>
-            <button class="dropdown-item" type="button" v-on:click="setFilter(3)">Starred</button>
+          <div class="dropdown-menu" v-bind:class="darkMode && 'bg-secondary'"
+               aria-labelledby="filterButton">
+            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'"
+                    v-on:click="setFilter(0)">All
+              links</button>
+            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'" v-on:click="setFilter(1)">Upcoming</button>
+            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'" v-on:click="setFilter(2)">Today</button>
+            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'" v-on:click="setFilter(3)">Starred</button>
           </div>
         </div>
 
         <div class="col-2">
           <button class="btn bi-plus-circle" id="addLink" data-toggle="modal" data-target="#addLinkForm"
-                  style="font-size: 1.3rem" onclick="$('#welcomeToast').toast('hide')"/>
+                  style="font-size: 1.3rem" v-bind:class="darkMode && 'text-light'" onclick="$('#welcomeToast').toast('hide')"/>
         </div>
 
       </div>
@@ -37,8 +44,8 @@
         <div v-for="(item, ix) in activeIndices" class="list-item row" :key="links[item].idNum">
           <div class="col-12 row align-items-center">
             <div class="col-4">
-              <h5>{{links[item].name}}</h5>
-              <h6>
+              <h5 v-bind:class="darkMode && 'text-light'">{{links[item].name}}</h5>
+              <h6 v-bind:class="darkMode && 'text-light'">
                 <span v-if="links[item].time !== ''">{{formatTime(links[item].time)}}</span>
                 <span v-else>no assigned time</span>
                 <span v-if="links[item].repeating">, repeating
@@ -57,24 +64,25 @@
               </h6>
             </div>
             <div class="col-6">
-              <h5><a v-bind:href="links[item].link">
+              <h5 v-bind:class="darkMode && 'text-light'"><a v-bind:href="links[item].link">
                 <span class="full-link">{{links[item].link}}</span>
                 <span class="short-link">Join meeting</span>
               </a></h5>
-              <h6 v-if="links[item].password === ''">No password</h6>
-              <h6 v-else>Password <b>{{links[item].password}}</b></h6>
+              <h6 v-bind:class="darkMode && 'text-light'" v-if="links[item].password === ''">No password</h6>
+              <h6 v-bind:class="darkMode && 'text-light'" v-else>Password <b>{{links[item].password}}</b></h6>
             </div>
             <div class="col-1">
               <button class="btn" :class="links[item].starred ? 'bi-star-fill' : 'bi-star'" style="color: gold;"
               @click="links[item].starred = !links[item].starred;"/>
             </div>
             <div class="col-1">
-              <button class="btn bi-x" style="font-size: 1.5rem" @click="deleteItem(item)"/>
+              <button class="btn bi-x" style="font-size: 1.5rem" v-bind:class="darkMode && 'text-light'"
+                      @click="deleteItem(item)"/>
             </div>
           </div>
-          <hr class="col-12" v-if="ix !== activeIndices.length - 1"/>
+          <hr class="col-12" v-bind:class="darkMode && 'bg-light'" v-if="ix !== activeIndices.length - 1"/>
         </div>
-        <div class="mt-5" :key="-1">
+        <div v-bind:class="darkMode && 'text-light'" class="mt-5" :key="-1">
           <small>We store all your event data in your browser, so only your computer has access to your event
             details.</small>
           <br/>
@@ -86,51 +94,57 @@
 
     <div class="modal fade" tabindex="-1" id="addLinkForm">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" v-bind:class="darkMode && 'bg-dark'">
           <div class="modal-header">
-            <h5 class="modal-title">Add a new link</h5>
+            <h5 class="modal-title" v-bind:class="darkMode && 'text-light'">Add a new link</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="clearForm">
-              <span aria-hidden="true">&times;</span>
+              <span aria-hidden="true" v-bind:class="darkMode && 'text-light'">&times;</span>
             </button>
           </div>
           <div class="modal-body">
             <form v-on:submit.prevent="saveForm">
               <div class="form-group">
-                <label for="nameInput">Event Title</label>
+                <label for="nameInput" v-bind:class="darkMode && 'text-white'">Event Title</label>
                 <input type="text" class="form-control" id="nameInput" aria-describedby="nameHelp"
-                       v-model="formData.name" required autocomplete="off"/>
-                <small id="nameHelp" class="form-text text-muted">Enter the name of your event here. All event
+                       v-model="formData.name" required autocomplete="off" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                <small id="nameHelp" class="form-text" v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the
+                  name of your event here. All event
                   data is stored on your browser's storage.</small>
 
-                <label for="linkInput">Meeting Link</label>
+                <label for="linkInput" v-bind:class="darkMode && 'text-white'">Meeting Link</label>
                 <input type="url" class="form-control" id="linkInput" aria-describedby="linkHelp"
-                       v-model="formData.link" required autocomplete="off"/>
-                <small id="linkHelp" class="form-text text-muted">Enter the link to your event here. All event
+                       v-model="formData.link" required autocomplete="off" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                <small id="linkHelp" class="form-text" v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the
+                  link to your event here. All event
                   data is stored on your browser's storage.</small>
 
-                <label for="pwdInput">Meeting Password</label>
+                <label for="pwdInput" v-bind:class="darkMode && 'text-white'">Meeting Password</label>
                 <input type="text" class="form-control form-control-sm" id="pwdInput" aria-describedby="pwdHelp"
-                       v-model="formData.password" autocomplete="off"/>
-                <small id="pwdHelp" class="form-text text-muted">Enter the password for the meeting link, if one
+                       v-model="formData.password" autocomplete="off" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                <small id="pwdHelp" class="form-text" v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the
+                  password for
+                  the meeting link, if one
                 exists.</small>
 
               </div>
               <hr/>
               <div class="form-group">
 
-                <label for="dateInput">Meeting Date/Time</label>
+                <label for="dateInput" v-bind:class="darkMode && 'text-white'">Meeting Date/Time</label>
                 <div class="form-row">
                   <input type="date" class="form-control col-6" id="dateInput" autocomplete="false"
-                         aria-describedby="datetimeHelp" v-model="formData.date"/>
+                         aria-describedby="datetimeHelp" v-model="formData.date" v-bind:class="darkMode && 'bg-dark text-light'"/>
                   <input type="time" class="form-control col-6" id="timeInput" autocomplete="false"
-                         aria-describedby="datetimeHelp" v-model="formData.time"/>
+                         aria-describedby="datetimeHelp" v-model="formData.time" v-bind:class="darkMode && 'bg-dark text-light'"/>
                 </div>
-                <small id="datetimeHelp" class="form-text text-muted">Enter the date and time of your event here.
+                <small id="datetimeHelp" class="form-text"
+                       v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the date and time of your event
+                  here.
                 If the event is repeating, enter the starting date and the time of the event.</small>
 
                 <div class="form-check mb-1">
-                  <input class="form-check-input" type="checkbox" value="" id="repeatCheck" v-model="formData.repeating">
-                  <label class="form-check-label" for="repeatCheck">
+                  <input class="form-check-input" type="checkbox" value="" id="repeatCheck" v-model="formData.repeating" v-bind:class="darkMode && 'bg-dark text-light'">
+                  <label class="form-check-label" for="repeatCheck" v-bind:class="darkMode && 'text-light'">
                     Repeating
                   </label>
                 </div>
@@ -139,8 +153,8 @@
                   <div v-for="(day, idx) in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
                   'Saturday']" :key="idx" class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value=""
-                           v-model="formData.daysRepeating[idx]">
-                    <label class="form-check-label" for="inlineCheckbox1">{{day}}</label>
+                           v-model="formData.daysRepeating[idx]" v-bind:class="darkMode && 'bg-dark text-light'">
+                    <label class="form-check-label" for="inlineCheckbox1" v-bind:class="darkMode && 'text-light'">{{day}}</label>
                   </div>
                 </div>
 
@@ -155,15 +169,16 @@
 
     <div class="modal fade" tabindex="-1" id="delete">
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" v-bind:class="darkMode && 'bg-dark'">
           <div class="modal-header">
-            <h5 class="modal-title">Delete event?</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <h5 class="modal-title" v-bind:class="darkMode && 'text-light'">Delete event?</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-bind:class="darkMode && 'text-light'">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <p>Are you sure you want to delete this event? You can't undo this.</p>
+            <p v-bind:class="darkMode && 'text-light'">Are you sure you want to delete this event? You can't undo this
+              .</p>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">No, keep it.</button>
@@ -209,6 +224,9 @@
       </div>
     </div>
 
+    <a class="btn" v-bind:class="darkMode ? 'bi-moon text-light btn-dark' : 'bi-sun'"
+            style="position: fixed; right: 16px; bottom: 16px; font-size: 1.5rem;" @click="flipDarkMode"/>
+
   </div>
 
 </template>
@@ -223,6 +241,10 @@
     name: 'App',
     components: {},
     data: () => {return {
+
+      // styling
+
+        darkMode: false,
 
       // form data
         formData: {
@@ -556,6 +578,16 @@
         let month = parseInt(d.substr(5, 2));
         let day = parseInt(d.substr(8, 2));
         return [year, month, day]
+      },
+
+      flipDarkMode: function() {
+        this.darkMode = !this.darkMode;
+        localStorage.setItem('darkMode', this.darkMode ? "yes" : "no");
+        if (this.darkMode) {
+          $('body').addClass('bg-dark');
+        } else {
+          $('body').removeClass('bg-dark');
+        }
       }
 
     },
@@ -569,6 +601,19 @@
         this.links = [];
         this.nextId = 0;
       }
+
+      if (localStorage.getItem('darkMode') == null) {
+        localStorage.setItem('darkMode', 'no');
+      } else if (localStorage.getItem('darkMode') === 'yes') {
+        this.darkMode = true;
+      }
+
+      if (this.darkMode) {
+        $('body').addClass('bg-dark');
+      } else {
+        $('body').removeClass('bg-dark');
+      }
+
       if (localStorage.getItem('toastDismissed') == null) $('#welcomeToast').toast('show');
       window.addEventListener('beforeunload', () => {this.saveData();});
     }

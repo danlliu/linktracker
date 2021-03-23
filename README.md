@@ -9,7 +9,7 @@ linktracker is a web app that keeps track of meeting links so you don't have to.
 linktracker was developed with HTML, Javascript, Bootstrap, and Vue.js.
 
 ## Version History
-
+**v1.1.0 (March 23, 2021):** added dark mode!  
 **v1.0.2 (March 23, 2021):** fixed a bug where "Today" would show all repeating events that started before the current
  day
 , regardless of it they repeated on today's weekday.  
