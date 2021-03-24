@@ -1,13 +1,16 @@
 <template>
-  <div id="app" class="m-3" v-bind:class="darkMode && 'bg-dark'">
+  <div id="app" class="m-3 bg-transparent" >
 
-    <div id="header" class="row p-3" v-bind:class="darkMode && 'bg-dark'">
+    <div id="header" class="row p-3 justify-content-between" v-bind:class="darkMode && 'bg-dark'">
       <div class="col">
-        <h1 v-bind:class="darkMode && 'text-light'">link tracker</h1>
-        <h6 v-bind:class="darkMode && 'text-light'">by danlliu</h6>
-      </div>
-      <div class="col row justify-content-end align-content-end">
-        <a href="https://github.com/danlliu/linktracker" target="_blank" rel="noreferrer noopener">v1.1.0</a>
+        <div>
+          <h1 class="pl-5" v-bind:class="darkMode && 'text-light'">link tracker</h1>
+          <h6 class="pl-5" v-bind:class="darkMode && 'text-light'">by danlliu</h6>
+          <a class="pl-5 col d-inline" href="https://github.com/danlliu/linktracker" target="_blank"
+             rel="noreferrer noopener">
+            v1.1.2
+          </a>
+        </div>
       </div>
     </div>
 
@@ -18,23 +21,23 @@
           <button class="btn dropdown-toggle" v-bind:class="darkMode ? 'btn-outline-light' : 'btn-outline-secondary'"
                   type="button"
                   id="filterButton"
-                  data-toggle="dropdown"
+                  data-bs-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
             {{['All links', 'Upcoming', 'Today', 'Starred'][this.filterType]}}
           </button>
-          <div class="dropdown-menu" v-bind:class="darkMode && 'bg-secondary'"
+          <div class="dropdown-menu" v-bind:class="darkMode && 'dropdown-menu-dark'"
                aria-labelledby="filterButton">
-            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'"
+            <button class="dropdown-item" type="button"
                     v-on:click="setFilter(0)">All
               links</button>
-            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'" v-on:click="setFilter(1)">Upcoming</button>
-            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'" v-on:click="setFilter(2)">Today</button>
-            <button class="dropdown-item" type="button" v-bind:class="darkMode && 'text-light'" v-on:click="setFilter(3)">Starred</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(1)">Upcoming</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(2)">Today</button>
+            <button class="dropdown-item" type="button" v-on:click="setFilter(3)">Starred</button>
           </div>
         </div>
 
         <div class="col-2">
-          <button class="btn bi-plus-circle" id="addLink" data-toggle="modal" data-target="#addLinkForm"
+          <button class="btn bi-plus-circle" id="addLink" data-bs-toggle="modal" data-bs-target="#addLinkForm"
                   style="font-size: 1.3rem" v-bind:class="darkMode && 'text-light'" onclick="$('#welcomeToast').toast('hide')"/>
         </div>
 
@@ -64,7 +67,7 @@
               </h6>
             </div>
             <div class="col-6">
-              <h5 v-bind:class="darkMode && 'text-light'"><a v-bind:href="links[item].link">
+              <h5 v-bind:class="darkMode && 'text-light'"><a v-bind:href="links[item].link" target="_blank" rel="noreferrer noopener">
                 <span class="full-link">{{links[item].link}}</span>
                 <span class="short-link">Join meeting</span>
               </a></h5>
@@ -72,8 +75,8 @@
               <h6 v-bind:class="darkMode && 'text-light'" v-else>Password <b>{{links[item].password}}</b></h6>
             </div>
             <div class="col-1">
-              <button class="btn" :class="links[item].starred ? 'bi-star-fill' : 'bi-star'" style="color: gold;"
-              @click="links[item].starred = !links[item].starred;"/>
+              <a class="btn" :class="links[item].starred ? 'bi-star-fill' : 'bi-star'" style="color: gold;"
+              @click="links[item].starred = !links[item].starred"/>
             </div>
             <div class="col-1">
               <button class="btn bi-x" style="font-size: 1.5rem" v-bind:class="darkMode && 'text-light'"
@@ -97,53 +100,61 @@
         <div class="modal-content" v-bind:class="darkMode && 'bg-dark'">
           <div class="modal-header">
             <h5 class="modal-title" v-bind:class="darkMode && 'text-light'">Add a new link</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="clearForm">
-              <span aria-hidden="true" v-bind:class="darkMode && 'text-light'">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" v-on:click="clearForm" v-bind:class="darkMode &&
+            'btn-close-white'"/>
           </div>
           <div class="modal-body">
             <form v-on:submit.prevent="saveForm">
-              <div class="form-group">
-                <label for="nameInput" v-bind:class="darkMode && 'text-white'">Event Title</label>
+              <div class="mb-3 form-floating">
                 <input type="text" class="form-control" id="nameInput" aria-describedby="nameHelp"
+                       placeholder="Event name"
                        v-model="formData.name" required autocomplete="off" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                <label for="nameInput" class="form-label" v-bind:class="darkMode && 'text-white'">Event Name</label>
                 <small id="nameHelp" class="form-text" v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the
                   name of your event here. All event
                   data is stored on your browser's storage.</small>
-
-                <label for="linkInput" v-bind:class="darkMode && 'text-white'">Meeting Link</label>
+              </div>
+              <div class="mb-3 form-floating">
                 <input type="url" class="form-control" id="linkInput" aria-describedby="linkHelp"
+                       placeholder="https://link"
                        v-model="formData.link" required autocomplete="off" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                <label class="form-label" for="linkInput" v-bind:class="darkMode && 'text-white'">Meeting Link</label>
                 <small id="linkHelp" class="form-text" v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the
                   link to your event here. All event
                   data is stored on your browser's storage.</small>
-
-                <label for="pwdInput" v-bind:class="darkMode && 'text-white'">Meeting Password</label>
-                <input type="text" class="form-control form-control-sm" id="pwdInput" aria-describedby="pwdHelp"
+              </div>
+              <div class="mb-3 form-floating">
+                <input type="text" class="form-control" id="pwdInput" aria-describedby="pwdHelp" placeholder="password"
                        v-model="formData.password" autocomplete="off" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                <label class="form-label" for="pwdInput" v-bind:class="darkMode && 'text-white'">Meeting
+                  Password</label>
                 <small id="pwdHelp" class="form-text" v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the
                   password for
                   the meeting link, if one
                 exists.</small>
-
               </div>
-              <hr/>
-              <div class="form-group">
-
-                <label for="dateInput" v-bind:class="darkMode && 'text-white'">Meeting Date/Time</label>
-                <div class="form-row">
-                  <input type="date" class="form-control col-6" id="dateInput" autocomplete="false"
+              <hr v-bind:class="darkMode && 'bg-light'"/>
+              <div class="mb-1">
+                <label class="form-label" for="dateInput" v-bind:class="darkMode && 'text-white'">Meeting
+                  Date/Time</label>
+                <div class="row g-3">
+                  <div class="col">
+                    <input type="date" class="form-control" id="dateInput" autocomplete="false"
                          aria-describedby="datetimeHelp" v-model="formData.date" v-bind:class="darkMode && 'bg-dark text-light'"/>
-                  <input type="time" class="form-control col-6" id="timeInput" autocomplete="false"
+                  </div>
+                  <div class="col">
+                    <input type="time" class="form-control" id="timeInput" autocomplete="false"
                          aria-describedby="datetimeHelp" v-model="formData.time" v-bind:class="darkMode && 'bg-dark text-light'"/>
+                  </div>
                 </div>
-                <small id="datetimeHelp" class="form-text"
+                <small id="datetimeHelp" class="form-text mb-3"
                        v-bind:class="darkMode ? 'text-light' : 'text-muted'">Enter the date and time of your event
                   here.
                 If the event is repeating, enter the starting date and the time of the event.</small>
 
-                <div class="form-check mb-1">
-                  <input class="form-check-input" type="checkbox" value="" id="repeatCheck" v-model="formData.repeating" v-bind:class="darkMode && 'bg-dark text-light'">
+                <div class="form-check mt-3 mb-1">
+                  <input class="form-check-input" type="checkbox" value="" id="repeatCheck"
+                         v-model="formData.repeating" v-bind:class="darkMode && 'text-light'">
                   <label class="form-check-label" for="repeatCheck" v-bind:class="darkMode && 'text-light'">
                     Repeating
                   </label>
@@ -153,7 +164,7 @@
                   <div v-for="(day, idx) in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
                   'Saturday']" :key="idx" class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value=""
-                           v-model="formData.daysRepeating[idx]" v-bind:class="darkMode && 'bg-dark text-light'">
+                           v-model="formData.daysRepeating[idx]" v-bind:class="darkMode && 'text-light'">
                     <label class="form-check-label" for="inlineCheckbox1" v-bind:class="darkMode && 'text-light'">{{day}}</label>
                   </div>
                 </div>
@@ -172,55 +183,44 @@
         <div class="modal-content" v-bind:class="darkMode && 'bg-dark'">
           <div class="modal-header">
             <h5 class="modal-title" v-bind:class="darkMode && 'text-light'">Delete event?</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-bind:class="darkMode && 'text-light'">
-              <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" v-bind:class="darkMode &&
+            'btn-close-white'"/>
           </div>
           <div class="modal-body">
             <p v-bind:class="darkMode && 'text-light'">Are you sure you want to delete this event? You can't undo this
               .</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">No, keep it.</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, keep it.</button>
             <button type="button" class="btn btn-danger" @click="confirmDelete">Yes, BEGONE!</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 200px;">
-      <div style="position: fixed; top: 16px; right: 16px; z-index: 128">
-        <div class="toast fade hide" id="welcomeToast"
-             data-autohide="false">
-          <div class="toast-header">
-            <strong class="mr-auto">Getting Started</strong>
-            <small>Just now</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
-                    onclick="localStorage.setItem('toastDismissed', 'yes')">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="toast-body">
-            Welcome to link tracker! To get started, use the <i class="bi-plus-circle"/> icon to add a new event!
+    <div aria-live="polite" aria-atomic="true" class="bg-dark position-relative bd-example-toasts">
+      <div class="toast-container position-fixed p-3 top-0 end-0" id="toastPlacement" style="z-index: 256">
+        <div class="toast fade hide" id="welcomeToast" data-bs-autohide="false">
+          <div class="d-flex align-items-start">
+            <div class="toast-body">
+              Welcome to link tracker! To get started, use the <i class="bi-plus-circle"/> icon to add a new event!
+            </div>
+            <button type="button" class="btn-close me-2 mt-2" data-bs-dismiss="toast" aria-label="Close"
+                    onclick="localStorage.setItem('toastDismissed', 'yes')"/>
           </div>
         </div>
-        <div class="toast fade hide" id="filterToast"
-             data-autohide="false">
-          <div class="toast-header">
-            <strong class="mr-auto">Getting Started</strong>
-            <small>Just now</small>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
-                    onclick="localStorage.setItem('filterDismissed', 'yes')">
-              <span aria-hidden="true">&times;</span>
-            </button>
+        <div class="toast fade hide" id="filterToast" data-bs-autohide="false">
+          <div class="d-flex align-items-start">
+            <div class="toast-body">
+                <p>Now that you have an event added, you can click the button labeled "All links" to filter your events.</p>
+                <p><b>Upcoming</b> shows all links that are scheduled to take place within the next 24 hours.</p>
+                <p><b>Today</b> shows all links that are scheduled for today, whether before or after the current time.</p>
+                <p><b>Starred</b> shows all links that you've marked as starred.</p>
+            </div>
+            <button type="button" class="btn-close me-2 mt-2" data-bs-dismiss="toast" aria-label="Close"
+                    onclick="localStorage.setItem('filterDismissed', 'yes')"/>
           </div>
-          <div class="toast-body">
-            <p>Now that you have an event added, you can click the button labeled "All links" to filter your events.</p>
-            <p><b>Upcoming</b> shows all links that are scheduled to take place within the next 24 hours.</p>
-            <p><b>Today</b> shows all links that are scheduled for today, whether before or after the current time.</p>
-            <p><b>Starred</b> shows all links that you've marked as starred.</p>
-          </div>
-      </div>
+        </div>
       </div>
     </div>
 
@@ -233,6 +233,8 @@
 
 <script>
 
+  import { Toast, Modal } from 'bootstrap';
+
   global.jQuery = require('jquery');
   var $ = global.jQuery;
   window.$ = $;
@@ -241,6 +243,11 @@
     name: 'App',
     components: {},
     data: () => {return {
+
+      // toasts
+
+        toastList: {},
+        modalList: {},
 
       // styling
 
@@ -525,9 +532,9 @@
           starred: false
         };
 
-        $('#addLinkForm').modal('hide');
+        this.modalList['addLink'].hide();
 
-        if (localStorage.getItem('filterDismissed') == null) $('#filterToast').toast('show');
+        if (localStorage.getItem('filterDismissed') == null) this.toastList['filterToast'].show();
 
         this.saveData();
       },
@@ -548,12 +555,12 @@
 
       deleteItem: function(index) {
         this.indexToRemove = index;
-        $('#delete').modal('show');
+        this.modalList['delete'].show();
       },
 
       confirmDelete: function() {
         if (this.indexToRemove !== -1) {
-          $('#delete').modal('hide');
+          this.modalList['delete'].hide();
           this.links.splice(this.indexToRemove, 1);
           this.saveData();
           this.indexToRemove = -1;
@@ -593,7 +600,25 @@
     },
 
     mounted() {
+
       console.log('mounted!');
+
+      let welcomeToast = document.querySelector('#welcomeToast');
+      this.toastList['welcomeToast'] = new Toast(welcomeToast);
+      this.toastList['welcomeToast'].hide();
+
+      let filterToast = document.querySelector('#filterToast');
+      this.toastList['filterToast'] = new Toast(filterToast);
+      this.toastList['filterToast'].hide();
+
+      let addForm = document.querySelector('#addLinkForm');
+      this.modalList['addLink'] = new Modal(addForm);
+      this.modalList['addLink'].hide();
+
+      let deleteForm = document.querySelector('#delete');
+      this.modalList['delete'] = new Modal(deleteForm);
+      this.modalList['delete'].hide();
+
       if (localStorage.getItem('links') != null) {
         this.links = JSON.parse(localStorage.getItem('links'));
         this.nextId = parseInt(localStorage.getItem('nextId'));
@@ -614,7 +639,10 @@
         $('body').removeClass('bg-dark');
       }
 
-      if (localStorage.getItem('toastDismissed') == null) $('#welcomeToast').toast('show');
+      if (localStorage.getItem('toastDismissed') == null) {
+        console.log('welcome!');
+        this.toastList['welcomeToast'].show();
+      }
       window.addEventListener('beforeunload', () => {this.saveData();});
     }
 
@@ -622,6 +650,14 @@
 </script>
 
 <style>
+
+  * {
+    transition: color 0.25s ease, background-color 0.5s ease;
+  }
+
+  #body {
+    transition: background-color 0.25s ease;
+  }
 
   #header {
     position: fixed;
@@ -633,13 +669,13 @@
   }
 
   #body {
-    margin-top: 128px;
+    margin-top: 160px;
   }
 
   /* Transition */
 
   .list-item {
-    transition: all 1s;
+    transition: all 1s, color 0.25s ease, background-color 0.5s ease;
     margin-bottom: 10px;
   }
 
@@ -648,11 +684,11 @@
   }
 
   .list-enter-active, .list-leave-active {
-    transition: all 1s;
+    transition: all 1s, color 0.25s ease, background-color 0.5s ease;
   }
 
   .list-move {
-    transition: all 1s;
+    transition: all 1s, color 0.25s ease, background-color 0.5s ease;
   }
 
   .list-leave-active {
