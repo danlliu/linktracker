@@ -20,17 +20,20 @@ Other changes:
 - Changed the star from a button to an anchor tag, thus avoiding the "focused" state when it is clicked.
 ---  
 **v1.1.1 (March 24, 2021):** 
-quality of life fixes. Made links open in a new tab. 
-Added transitions when switching between light and dark mode.
- ---  
+Quality of life fixes:
+- Made links open in a new tab. 
+- Added transitions when switching between light and dark mode.
+---  
 **v1.1.0 (March 23, 2021):** 
-added dark mode! you can enable dark mode using the button in the lower right of the screen. 
+- Added dark mode!
+  - You can enable dark mode using the button in the lower right of the screen. 
 this affects all components. 
- ---  
+---  
 **v1.0.2 (March 23, 2021):** 
-fixed a bug where "Today" would show all repeating events that started before the current day, regardless of it they repeated on today's weekday. 
+- Fixed a bug where "Today" would show all repeating events that started before the current day, regardless of it they
+ repeated on today's weekday. 
 --- 
 **v1.0.1 (March 22, 2021):** 
-added notifications on the upper right to improve UI discoverability
+- added notifications on the upper right to improve UI discoverability
 ---  
 **v1.0.0 (March 22, 2021):** released the first version!
