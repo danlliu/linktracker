@@ -8,7 +8,7 @@
           <h6 class="pl-5" v-bind:class="darkMode && 'text-light'">by danlliu</h6>
           <a class="pl-5 col d-inline" href="https://github.com/danlliu/linktracker" target="_blank"
              rel="noreferrer noopener">
-            v1.1.2
+            v1.2.0
           </a>
         </div>
       </div>
@@ -46,6 +46,10 @@
       <transition-group name="list" tag="div" class="w-100">
         <div v-for="(item, ix) in activeIndices" class="list-item row" :key="links[item].idNum">
           <div class="col-12 row align-items-center">
+            <div class="col-1">
+              <a class="btn" :class="links[item].starred ? 'bi-star-fill' : 'bi-star'" style="color: gold;"
+                 @click="links[item].starred = !links[item].starred"/>
+            </div>
             <div class="col-4">
               <h5 v-bind:class="darkMode && 'text-light'">{{links[item].name}}</h5>
               <h6 v-bind:class="darkMode && 'text-light'">
@@ -66,7 +70,7 @@
                 </span>
               </h6>
             </div>
-            <div class="col-6">
+            <div class="col-5">
               <h5 v-bind:class="darkMode && 'text-light'"><a v-bind:href="links[item].link" target="_blank" rel="noreferrer noopener">
                 <span class="full-link">{{links[item].link}}</span>
                 <span class="short-link">Join meeting</span>
@@ -74,16 +78,18 @@
               <h6 v-bind:class="darkMode && 'text-light'" v-if="links[item].password === ''">No password</h6>
               <h6 v-bind:class="darkMode && 'text-light'" v-else>Password <b>{{links[item].password}}</b></h6>
             </div>
+
             <div class="col-1">
-              <a class="btn" :class="links[item].starred ? 'bi-star-fill' : 'bi-star'" style="color: gold;"
-              @click="links[item].starred = !links[item].starred"/>
+              <button class="btn bi-pencil-square" style="font-size: 1.25rem" v-bind:class="darkMode && 'text-light'"
+                    @click="editItem(item)"/>
             </div>
             <div class="col-1">
-              <button class="btn bi-x" style="font-size: 1.5rem" v-bind:class="darkMode && 'text-light'"
+              <button class="btn bi-x" style="font-size: 1.75rem" v-bind:class="darkMode && 'text-light'"
                       @click="deleteItem(item)"/>
             </div>
+
           </div>
-          <hr class="col-12" v-bind:class="darkMode && 'bg-light'" v-if="ix !== activeIndices.length - 1"/>
+          <hr class="col-12 my-3" v-bind:class="darkMode && 'bg-light'" v-if="ix !== activeIndices.length - 1"/>
         </div>
         <div v-bind:class="darkMode && 'text-light'" class="mt-5" :key="-1">
           <small>We store all your event data in your browser, so only your computer has access to your event
@@ -171,7 +177,10 @@
 
               </div>
 
-              <button type="submit" class="btn btn-primary">Add event</button>
+              <button type="submit" class="btn btn-primary">
+                <span v-if="editingId === -1">Add event</span>
+                <span v-else>Save changes</span>
+              </button>
             </form>
           </div>
         </div>
@@ -192,7 +201,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, keep it.</button>
-            <button type="button" class="btn btn-danger" @click="confirmDelete">Yes, BEGONE!</button>
+            <button type="button" class="btn btn-danger" @click="confirmDelete">Yes, delete it.</button>
           </div>
         </div>
       </div>
@@ -268,6 +277,9 @@
 
       // for making new object
         nextId: 0,
+
+      // for editing
+        editingId: -1,
 
       // for deleting
         indexToRemove: -1,
@@ -511,15 +523,17 @@
       },
 
       saveForm: function() {
-        // i mean you probably shouldn't be using http for a meeting but whatever
-        if (this.formData.link.substr(0, 7) !== "http://" && this.formData.link.substr(0, 8) !== "https://") {
-          this.formData.link = "https://" + this.formData.link;
+
+        if (this.editingId !== -1) {
+          console.log('writing back');
+          this.links[this.editingId] = this.formData;
+        } else {
+          this.formData.idNum = this.nextId++;
+          this.nextId %= 1048576;
+
+          this.links.push(this.formData);
         }
 
-        this.formData.idNum = this.nextId++;
-        this.nextId %= 1048576;
-
-        this.links.push(this.formData);
         this.formData = {
           idNum: 0,
           name: "",
@@ -540,6 +554,7 @@
       },
 
       clearForm: function() {
+        this.editingId = -1;
         this.formData = {
           idNum: 0,
           name: "",
@@ -551,6 +566,12 @@
           daysRepeating: [],
           starred: false
         };
+      },
+
+      editItem: function(index) {
+        Object.assign(this.formData, this.links[index]);
+        this.editingId = index;
+        this.modalList['addLink'].show();
       },
 
       deleteItem: function(index) {

@@ -9,6 +9,12 @@ linktracker is a web app that keeps track of meeting links so you don't have to.
 linktracker was developed with HTML, Javascript, Bootstrap, and Vue.js.
 
 ## Version History
+**v1.2.0 (March 26, 2021):**
+added editing functionality! You can now edit events rather than having to delete and remake them.
+- Moved the "starred" icon to the left of the event, to separate starring from modifying the event or deleting.
+- Added a button to edit the event.
+- Updated the modal form to display "Add event" or "Save changes" depending on if the user is adding or editing.
+---
 **v1.1.2 (March 24, 2021):** 
 updated to Bootstrap 5.0! The following changes come as a result of that:
 - Updated forms to have floating labels. 
